@@ -1,0 +1,13 @@
+# AgentAccord R&D Budget Guidelines & Financial Constraints (FY2026)
+
+## Executive Summary
+This document establishes minimum operational expenditure thresholds, contract cancellation penalties, and allocation constraints across primary research and development verticals for Fiscal Year 2026.
+
+## Operational Expenditure Allocation Thresholds
+- **AI & Autonomous Systems**: Mandatory baseline allocation threshold is 45% of total R&D budget. Under no circumstances may AI allocation drop below 40% without incurring catastrophic competitive loss.
+- **Quantum Computing & Deep Tech**: Baseline allocation is 30%. Threshold floor is 25%. Early project termination incurs contract cancellation penalties of $4.2M.
+- **Biotech & Synthetic Biology**: Baseline allocation is 25%. Threshold floor is 10%. Scaling back clinical phase trials incurs contract cancellation penalties of $1.5M.
+
+## Contract Cancellation Penalties & Labor Compliance
+- Involuntary personnel layoffs incur mandatory severance liability and regulatory compliance overhead averaging $180,000 per employee.
+- Reallocating capital through non-labor project concessions (reducing Biotech scope while defending AI headcount) avoids layoff liabilities and maintains workplace stability.
