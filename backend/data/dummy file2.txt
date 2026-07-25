@@ -1,0 +1,23 @@
+================================================================================
+INSTITUTIONAL POLICY: HUMAN CAPITAL RETENTION & LAYOFF RISK MATRIX
+Entity: Apex Innovation Labs | People Operations & Legal Compliance
+Document Control ID: AIL-HR-2026-POL-088
+Effective Date: Q3 2026 Review Cycle
+================================================================================
+
+1. THE TRUE COST OF INVOLUNTARY LAYOFFS
+Before executing workforce reductions, executive governance models must factor in the fully loaded costs of human capital replacement:
+- Average Severance & Legal Payout: $85,000 per Senior Engineer.
+- Lost Productivity & Recruiting Replacement Cost: $65,000 per Senior Engineer.
+- Total Financial Impact: $150,000 per involuntarily terminated employee.
+- Institutional Memory Loss: High risk of proprietary algorithm leakage to competitors if core AI/Quantum staff are terminated.
+
+2. MANDATORY LAYOFF THRESHOLD RULES
+- Rule HR-402: Any departmental layoff exceeding 5% of full-time employees (FTEs) triggers a mandatory 60-day review by the European Labor Board, freezing all corporate restructurings during the investigation.
+- Rule HR-405: Involuntary terminations are strictly prohibited while active third-party contractor budgets remain unspent.
+
+3. APPROVED ALTERNATIVE COST-SAVING LEVERS
+To achieve target budget reductions without triggering Rule HR-402, departments are authorized to execute the "Zero-Layoff Savings Protocol":
+- Lever A (External Contractor Freeze): Terminate external consulting contracts in Biotech and Quantum. Immediate realized savings: $1,200,000.
+- Lever B (Travel & Hardware Refresh Freeze): Suspend non-essential conference travel and annual server upgrades. Immediate realized savings: $300,000.
+- Total Non-Personnel Savings Available: $1,500,000 USD.

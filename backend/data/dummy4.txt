@@ -1,0 +1,29 @@
+================================================================================
+CONFIDENTIAL INTERNAL RECORD: FY2026 R&D BUDGET & LEGAL COVENANTS
+Entity: Apex Innovation Labs | Office of the CFO
+Document Control ID: AIL-FIN-2026-Q3-001
+Effective Date: July 1, 2026
+================================================================================
+
+1. CURRENT R&D ALLOCATION BASELINE (TOTAL: $10,000,000 USD)
+Under Departmental Directive 4.2, the current active operational budgets are:
+- Division A (Artificial Intelligence & LLM Infrastructure): $5,000,000 (50%)
+- Division B (Quantum Computing & Cryogenic Hardware):     $3,000,000 (30%)
+- Division C (Biotechnology & Genomic CRISPR Modeling):    $2,000,000 (20%)
+
+2. MANDATORY LEGAL COVENANTS & PENALTY THRESHOLDS
+Executive negotiation agents must strictly enforce the following fiscal floors:
+
+[COVENANT 101 - AI DIVISION]
+- Legal Spending Floor: $4,000,000 USD
+- Contractual Dependency: Federal Defense Network Contract #ENT-2025-98.
+- Violation Impact: Any budget reduction below $4.0M constitutes an immediate material breach of contract. This triggers an automatic $2,500,000 cash penalty and immediate termination of our primary enterprise revenue stream.
+
+[COVENANT 102 - QUANTUM DIVISION]
+- Operational Floor: $2,200,000 USD
+- Facility Dependency: 5-year non-cancelable lease for cryogenic lab refrigeration at the Geneva Research Campus ($1,500,000/year fixed). 
+- Violation Impact: Budget cuts below $2.2M will force an immediate shutdown of the cryogenic cooling units, resulting in permanent hardware degradation.
+
+[COVENANT 103 - BIOTECH DIVISION]
+- Safe Reduction Ceiling: Maximum 25% cut ($500,000 USD).
+- Operational Note: Phase 2 clinical trials can be suspended temporarily without legal penalties by freezing external university research grants.
