@@ -4,3 +4,5 @@
 # Python virtual environments
 .venv/
 venv/
+.opencode
+.tmp

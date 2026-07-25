@@ -14,15 +14,20 @@ AgentAccord replaces one-sided corporate decision-making by filling "empty chair
 ```text
 Agent Accord/
 ├── AGENTS.md                            # Detailed implementable agent specs & architecture
-├── Agent.md                             # Specification mirror reference
 ├── README.md                            # Main project overview & quickstart guide
+├── pyproject.toml                       # Project metadata (requires-python >=3.10,<3.14)
+├── .python-version                      # Pinned interpreter for uv-managed venv
 ├── backend/
+│   ├── .env.example                     # Template for API keys (copy to .env — gitignored)
 │   ├── data/
 │   │   └── r_and_d_budget_2026.txt      # Financial & R&D budget guidelines for RAG retrieval
+│   ├── db/                              # Local ChromaDB vector store (gitignored, auto-created)
 │   ├── requirements.txt                 # Python dependencies (fastapi, uvicorn, crewai, numpy)
 │   ├── main.py                          # FastAPI server + SSE /negotiate endpoint
-│   ├── agents.py                        # 4 CrewAI agent definitions & RAG tool config
+│   ├── crew.py                          # Negotiation orchestration + simulation fallback
+│   ├── agents.py                        # 4 CrewAI agent definitions & shared tool wiring
 │   ├── tasks.py                         # Sequential negotiation task workflows
+│   ├── tools.py                         # SerperDevTool, ScrapeWebsiteTool, TXTSearchTool RAG, DataFolderSyncTool
 │   └── resilience.py                    # NumPy matrix policy stress-testing calculation
 └── frontend/
     ├── package.json                     # React, Vite, R3F, Drei, Tailwind dependencies
@@ -43,7 +48,7 @@ Agent Accord/
 
 ## ⚡ Tech Stack
 
-* **Backend**: Python 3.10+, FastAPI, Uvicorn, CrewAI, CrewAI Tools (Native RAG), NumPy.
+* **Backend**: Python ≥3.10 and <3.14, FastAPI, Uvicorn, CrewAI, crewai-tools (SerperDevTool, ScrapeWebsiteTool, TXTSearchTool RAG with local ChromaDB persistence), NumPy.
 * **Frontend**: React 18, Vite, Tailwind CSS v4, Lucide Icons.
 * **3D Visual Stage**: Three.js, React Three Fiber (`@react-three/fiber`), Drei (`@react-three/drei`).
 * **Communication**: Real-time Server-Sent Events (SSE) streaming.
@@ -53,31 +58,36 @@ Agent Accord/
 ## 🚀 Quickstart & Installation Guide
 
 ### Prerequisites
-* Python 3.10 or higher
+* Python **≥3.10 and <3.14** (CrewAI/chromadb do not yet support 3.14)
 * Node.js 18.x or higher
-* OpenAI API Key (or set `useMockMode` on frontend)
+* OpenAI API Key and Serper API Key (or use the backend's automatic simulation fallback / frontend `useMockMode`)
 
 ### 1. Backend Setup
 
 ```bash
 cd backend
 
-# Create virtual environment
-python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
+# Create virtual environment (Python 3.10–3.13 required)
+# With uv (recommended):
+uv venv --python 3.12
+uv pip install -r requirements.txt
 
-# Install dependencies
+# Or classic venv:
+python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # Linux/macOS
 pip install -r requirements.txt
 
-# Set environment variables
-export OPENAI_API_KEY="your-openai-api-key"
+# Configure API keys: copy .env.example to .env and fill in your keys
+#   OPENAI_API_KEY  — required for live CrewAI reasoning + RAG embeddings
+#   SERPER_API_KEY  — required for SerperDevTool live web search
+cp .env.example .env         # Linux/macOS; on Windows: copy .env.example .env
 
-# Start FastAPI server
+# Start FastAPI server (loads .env automatically)
 uvicorn main:app --reload --port 8000
 ```
+
+> No valid `OPENAI_API_KEY`? The backend automatically streams its built-in simulation fallback — the frontend works either way.
 
 ### 2. Frontend Setup
 
@@ -95,9 +105,11 @@ Open your browser at `http://localhost:5173`.
 
 ---
 
-## 🛡️ Hackathon Fail-Safe: Mock Mode (`Ctrl + M`)
+## 🛡️ Hackathon Fail-Safes
 
-AgentAccord features a built-in **Mock Mode** fail-safe for offline or network-constrained live demonstrations:
-- Press **`Ctrl + M`** anywhere in the web app or toggle the **Mock Mode** switch in the sidebar.
-- Bypasses external API/backend connections and streams pre-scripted multi-agent dialogue turns locally.
-- Ensures flawless 3D stage animation and Golden Document rendering in any environment.
+AgentAccord has **two independent fail-safes** for reliable demos:
+
+1. **Frontend Mock Mode (`Ctrl + M`)** — press `Ctrl + M` anywhere in the web app or toggle the **Mock Mode** switch in the sidebar. Bypasses external API/backend connections and streams pre-scripted multi-agent dialogue turns locally (every 2.5s).
+2. **Backend Simulation Fallback** — if no valid `OPENAI_API_KEY` is configured (or live execution fails), the `/negotiate` endpoint automatically streams a dynamic simulation using the same SSE `turn`/`accord` event contract.
+
+Both guarantee flawless 3D stage animation and Golden Document rendering in any environment.

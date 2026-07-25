@@ -37,7 +37,15 @@ async def negotiate(prompt: str = Query(default="We must cut 20% of R&D spend im
         async for event_payload in run_negotiation_crew_stream(prompt):
             yield f"data: {json.dumps(event_payload)}\n\n"
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 if __name__ == "__main__":
     import uvicorn
