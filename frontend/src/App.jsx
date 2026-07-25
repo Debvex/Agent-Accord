@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Scene from './components/Scene'
 import Sidebar from './components/Sidebar'
 import DecisionLedger from './components/DecisionLedger'
+import AnimatedBackground from './components/AnimatedBackground'
 
 export default function App() {
   const [prompt, setPrompt] = useState('We must cut 20% of R&D spend immediately')
@@ -130,6 +131,9 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-screen bg-slate-950 overflow-hidden relative">
+      {/* Animated Background Canvas */}
+      <AnimatedBackground />
+      
       {/* Control Panel Sidebar */}
       <Sidebar
         prompt={prompt}
@@ -142,7 +146,7 @@ export default function App() {
       />
 
       {/* 3D Visual Stage Canvas */}
-      <div className="flex-1 h-full relative">
+      <div className="flex-1 h-full relative z-10">
         <Scene activeSpeaker={activeSpeaker} />
 
         {/* Mock Mode Overlay Indicator Badge */}
