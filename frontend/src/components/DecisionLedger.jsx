@@ -1,15 +1,24 @@
 import React from 'react'
-import { Award, ShieldCheck, FileCheck, CheckCircle2, RotateCcw } from 'lucide-react'
+import { Award, ShieldCheck, FileCheck, CheckCircle2, RotateCcw, X } from 'lucide-react'
 
 export default function DecisionLedger({ accord, onReset }) {
   if (!accord) return null
 
   return (
     <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 z-50 animate-fadeIn">
-      <div className="max-w-xl w-full bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-amber-500/40 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 space-y-6 relative overflow-hidden">
+      <div className="max-w-xl w-full bg-linear-to-b from-slate-900 via-slate-900 to-slate-950 border border-amber-500/40 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 space-y-6 relative overflow-hidden">
         {/* Glow Header accent */}
         <div className="absolute -top-24 -left-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl" />
+
+        <button
+          type="button"
+          onClick={onReset}
+          aria-label="Close decision ledger and return home"
+          className="absolute top-4 right-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-950/80 text-slate-300 transition-colors hover:border-slate-500 hover:bg-slate-800 hover:text-white"
+        >
+          <X className="h-4 w-4" />
+        </button>
 
         {/* Card Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">

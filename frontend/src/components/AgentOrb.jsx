@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 
-export default function AgentOrb({ position, role, color, activeSpeaker }) {
+export default function AgentOrb({ position, role, color, activeSpeaker, hideLabel = false }) {
   const meshRef = useRef()
   const isActive = activeSpeaker === role
 
@@ -42,18 +42,20 @@ export default function AgentOrb({ position, role, color, activeSpeaker }) {
       </mesh>
 
       {/* Floating 3D HTML Speech Tag */}
-      <Html position={[0, 1.2, 0]} center distanceFactor={10}>
-        <div className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 shadow-lg border ${
-          isActive 
-            ? 'bg-slate-900/90 text-white border-cyan-400 scale-110 shadow-cyan-500/50' 
-            : 'bg-slate-950/70 text-slate-400 border-slate-800'
-        }`}>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: color }} />
-            {role}
+      {!hideLabel && (
+        <Html position={[0, 1.2, 0]} center distanceFactor={10}>
+          <div className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 shadow-lg border ${
+            isActive 
+              ? 'bg-slate-900/90 text-white border-cyan-400 scale-110 shadow-cyan-500/50' 
+              : 'bg-slate-950/70 text-slate-400 border-slate-800'
+          }`}>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: color }} />
+              {role}
+            </div>
           </div>
-        </div>
-      </Html>
+        </Html>
+      )}
     </group>
   )
 }

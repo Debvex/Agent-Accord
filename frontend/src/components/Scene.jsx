@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import AgentOrb from './AgentOrb'
 
-export default function Scene({ activeSpeaker }) {
+export default function Scene({ activeSpeaker, hideLabels = false }) {
   const agents = [
     { role: 'Finance Lead', color: '#ef4444', position: [-2.5, 0.5, 0] },
     { role: 'Market Intelligence Agent', color: '#3b82f6', position: [0, 0.5, 2.5] },
@@ -42,6 +42,7 @@ export default function Scene({ activeSpeaker }) {
             color={agent.color}
             position={agent.position}
             activeSpeaker={activeSpeaker}
+            hideLabel={hideLabels}
           />
         ))}
       </Canvas>
