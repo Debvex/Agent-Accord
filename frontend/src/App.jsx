@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Scene from './components/Scene'
 import Sidebar from './components/Sidebar'
 import DecisionLedger from './components/DecisionLedger'
+import axios from 'axios';
 
 export default function App() {
   const [prompt, setPrompt] = useState('We must cut 20% of R&D spend immediately')
@@ -39,14 +40,26 @@ export default function App() {
   }
 
   // Live SSE Connection to FastAPI backend endpoint
-  const runLiveSSENegotiation = () => {
-    const url = `http://localhost:8000/negotiate?prompt=${encodeURIComponent(prompt)}`
-    const es = new EventSource(url)
-    eventSourceRef.current = es
+  const runLiveSSENegotiation = async () => {
+    // const url = `http://localhost:8000/negotiate?prompt=${encodeURIComponent(prompt)}`
+    // const url = `${import.meta.env.BACKEND_URL}/negotiate`
+    // const es = new EventSource(url)
+    // eventSourceRef.current = es
 
-    es.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
+    // Call the login API for Captain
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/negotiate`,
+        prompt,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.status == 200) {
+        const data = response.data
         if (data.type === 'turn') {
           setActiveSpeaker(data.speaker)
           setChatLog((prev) => [...prev, data])
@@ -54,18 +67,38 @@ export default function App() {
           setAccord(data)
           setActiveSpeaker(null)
           setIsRunning(false)
-          es.close()
         }
-      } catch (err) {
-        console.error('Error parsing SSE payload:', err)
       }
+      else {
+        console.log("Error after responding: ", response)
+      }
+
+    } catch (error) {
+      console.error('Error while fetching SSE payload:', error)
     }
 
-    es.onerror = (err) => {
-      console.warn('SSE Error / Backend offline. Falling back to Mock Mode simulation.', err)
-      es.close()
-      runMockNegotiation()
-    }
+    // es.onmessage = (event) => {
+    //   try {
+    //     const data = JSON.parse(event.data)
+    //     if (data.type === 'turn') {
+    //       setActiveSpeaker(data.speaker)
+    //       setChatLog((prev) => [...prev, data])
+    //     } else if (data.type === 'accord') {
+    //       setAccord(data)
+    //       setActiveSpeaker(null)
+    //       setIsRunning(false)
+    //       es.close()
+    //     }
+    //   } catch (err) {
+    //     console.error('Error parsing SSE payload:', err)
+    //   }
+    // }
+
+    // es.onerror = (err) => {
+    //   console.warn('SSE Error / Backend offline. Falling back to Mock Mode simulation.', err)
+    //   es.close()
+    //   runMockNegotiation()
+    // }
   }
 
   // Local Mock Simulation Engine
