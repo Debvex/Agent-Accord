@@ -1,14 +1,26 @@
-import React, { useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 
 export default function AgentOrb({ position, role, color, activeSpeaker, hideLabel = false }) {
+  const groupRef = useRef()
   const meshRef = useRef()
   const ringRef = useRef()
   const isActive = activeSpeaker === role
+  const basePosition = useMemo(() => new THREE.Vector3(position[0], position[1], position[2]), [position])
 
   useFrame((state, delta) => {
+    if (groupRef.current) {
+      const targetPosition = new THREE.Vector3(
+        basePosition.x,
+        basePosition.y + (isActive ? 0.15 : 0),
+        basePosition.z
+      )
+
+      groupRef.current.position.lerp(targetPosition, delta * 5)
+    }
+
     if (!meshRef.current) return
 
     // Base orb rotation
@@ -36,7 +48,7 @@ export default function AgentOrb({ position, role, color, activeSpeaker, hideLab
   })
 
   return (
-    <group position={position}>
+    <group ref={groupRef} position={position}>
       {/* Primary Agent Sphere */}
       <mesh ref={meshRef}>
         <sphereGeometry args={[0.65, 32, 32]} />
