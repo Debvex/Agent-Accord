@@ -19,7 +19,7 @@
                 │                                             │
       ┌─────────▼──────────┐                                  │
       │  RAG Tool Stack    │                                  │
-      │ (TXTSearchTool +   │                                  │
+      │ (VectorDBSearch +  │                                  │
       │  local ChromaDB)   │                                  │
       └────────────────────┘                                  │
                 │                                             │
@@ -47,10 +47,12 @@
 
 Every agent is equipped with the full shared tool stack (`backend/tools.py`):
 
-* **Budget RAG Search** — `TXTSearchTool` over `backend/data/r_and_d_budget_2026.txt`, embedded with OpenAI `text-embedding-3-small` and persisted to a local ChromaDB vector store inside the repo at `backend/db/` (gitignored).
-* **Web Search** — `SerperDevTool` (live Google results; requires `SERPER_API_KEY` in `backend/.env`).
+* **Vector Database Search** — `VectorDBSearchTool` performs semantic search over all uploaded documents and data files. Documents are embedded using OpenAI `text-embedding-3-small` and stored in a local ChromaDB vector store at `backend/db/` (gitignored). **Only returns results with similarity score ≥ 0.8**; if no relevant results found, agents fall back to web search.
+* **Web Search** — `SerperDevTool` (live Google results; requires `SERPER_API_KEY` in `backend/.env`). Used when vector DB search returns no relevant results or when agents need external information.
 * **Website Scraping** — `ScrapeWebsiteTool` (agents may scrape any URL discovered at runtime).
 * **Data Folder Sync** — custom `DataFolderSyncTool` that copies matching files from `backend/data/` into `backend/synced_data/` for auditing.
+
+**Document Embedding**: All documents in `backend/data/` and `backend/uploads/` are automatically embedded into the vector database on server startup and immediately upon upload. The LLM decides when to use vector DB search vs web search based on query relevance.
 
 ### Agent 1: Finance Lead
 
@@ -65,8 +67,8 @@ Every agent is equipped with the full shared tool stack (`backend/tools.py`):
 * **Role**: Chief Data Officer & Market Analyst
 * **Goal**: Query internal budget documents for constraints, contract cancellation penalties, and minimum operating thresholds before recommending data-driven compromises.
 * **Backstory**: An expert data scientist armed with real-time financial documents and market metrics.
-* **Tools Attached**: Full shared stack above; primary user of the Budget RAG Search (`TXTSearchTool`) against `backend/data/r_and_d_budget_2026.txt`.
-* **Mandatory Constraint**: Must run search queries (e.g., *"minimum budget constraints and contract penalties"*) before contributing dialogue.
+* **Tools Attached**: Full shared stack above; primary user of the Vector Database Search (`VectorDBSearchTool`) against all uploaded and data documents.
+* **Mandatory Constraint**: Must run search queries (e.g., *"minimum budget constraints and contract penalties"*) before contributing dialogue. If vector DB returns no relevant results (similarity < 0.8), must use web search.
 * **Color Representation**: Blue (`#3b82f6`)
 
 ### Agent 3: R&D Project Director

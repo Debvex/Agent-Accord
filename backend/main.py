@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from crew import run_negotiation_crew_stream, interrupt_negotiation
+from tools import embed_document, DATA_DIR, UPLOAD_DIR
 
 # Load environment variables from .env file if available
 load_dotenv()
@@ -33,6 +34,42 @@ class InterruptRequest(BaseModel):
     message: str
     session_id: str = "default"
 
+@app.on_event("startup")
+async def startup_event():
+    """
+    On startup, embed all existing documents in data/ and uploads/ directories
+    into the vector database if not already embedded.
+    """
+    print("[Startup] Checking for documents to embed...")
+    
+    total_embedded = 0
+    
+    # Embed documents from data/ directory
+    if os.path.exists(DATA_DIR):
+        for filename in os.listdir(DATA_DIR):
+            file_path = os.path.join(DATA_DIR, filename)
+            if os.path.isfile(file_path) and filename.endswith(('.txt', '.md', '.json')):
+                try:
+                    chunks = embed_document(file_path)
+                    total_embedded += chunks
+                    print(f"[Startup] Embedded {chunks} chunks from {filename}")
+                except Exception as e:
+                    print(f"[Startup] Warning: Failed to embed {filename}: {e}")
+    
+    # Embed documents from uploads/ directory
+    if os.path.exists(UPLOAD_DIR):
+        for filename in os.listdir(UPLOAD_DIR):
+            file_path = os.path.join(UPLOAD_DIR, filename)
+            if os.path.isfile(file_path) and filename.endswith(('.txt', '.md', '.json')):
+                try:
+                    chunks = embed_document(file_path)
+                    total_embedded += chunks
+                    print(f"[Startup] Embedded {chunks} chunks from {filename}")
+                except Exception as e:
+                    print(f"[Startup] Warning: Failed to embed {filename}: {e}")
+    
+    print(f"[Startup] Total chunks embedded: {total_embedded}")
+
 @app.get("/")
 def read_root():
     return {
@@ -47,12 +84,14 @@ async def upload_files(files: List[UploadFile] = File(...)):
     """
     Upload company documents for RAG search.
     Accepts multiple files (txt, md, json, pdf, docx).
-    Files are stored in backend/uploads/ and made available to agents.
+    Files are stored in backend/uploads/ and immediately embedded into the vector database.
     """
     upload_dir = os.path.join(os.path.dirname(__file__), "uploads")
     os.makedirs(upload_dir, exist_ok=True)
     
     uploaded_files = []
+    embedded_chunks = 0
+    
     for file in files:
         # Validate file type
         allowed_extensions = {'.txt', '.md', '.json', '.pdf', '.docx'}
@@ -70,16 +109,27 @@ async def upload_files(files: List[UploadFile] = File(...)):
             content = await file.read()
             buffer.write(content)
         
+        # Embed document into vector database (only for text-based files)
+        chunks_embedded = 0
+        if file_ext in {'.txt', '.md', '.json'}:
+            try:
+                chunks_embedded = embed_document(file_path)
+                embedded_chunks += chunks_embedded
+            except Exception as e:
+                print(f"[Upload] Warning: Failed to embed {file.filename}: {e}")
+        
         uploaded_files.append({
             "filename": file.filename,
             "size": len(content),
-            "type": file_ext
+            "type": file_ext,
+            "chunks_embedded": chunks_embedded
         })
     
     return {
         "status": "success",
-        "message": f"Successfully uploaded {len(uploaded_files)} file(s)",
-        "files": uploaded_files
+        "message": f"Successfully uploaded {len(uploaded_files)} file(s) and embedded {embedded_chunks} chunk(s) into vector database",
+        "files": uploaded_files,
+        "total_chunks_embedded": embedded_chunks
     }
 
 @app.get("/uploaded-files")

@@ -21,10 +21,11 @@ def create_negotiation_tasks(agents: dict, user_prompt: str) -> list[Task]:
 
     task2 = Task(
         description=(
-            "Use the Budget RAG Search tool to query 'r_and_d_budget_2026.txt' for minimum budget constraints "
-            "and contract cancellation penalties. Also execute the Data Folder Sync Tool to copy budget files "
-            "to 'synced_data'. Report exact minimum allocation thresholds for AI, Quantum, and Biotech, and "
-            "state termination penalty costs."
+            "Search the vector database for information about minimum budget constraints "
+            "and contract cancellation penalties. If no relevant results are found (similarity < 0.8), "
+            "use the web search tool to find this information. Also execute the Data Folder Sync Tool "
+            "to copy budget files to 'synced_data'. Report exact minimum allocation thresholds for AI, "
+            "Quantum, and Biotech, and state termination penalty costs."
         ),
         expected_output="A data-backed report stating budget threshold constraints, contract penalties, and confirmation of file sync.",
         agent=market_agent

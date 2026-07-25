@@ -1,8 +1,7 @@
 from crewai import Agent
 from tools import (
     DataFolderSyncTool,
-    DocumentSearchTool,
-    create_budget_rag_tool,
+    VectorDBSearchTool,
     create_scrape_website_tool,
     create_web_search_tool,
 )
@@ -13,20 +12,18 @@ def create_governance_agents():
     Creates and returns the 4 specialized AgentAccord governance agents.
 
     Every agent is equipped with the full default CrewAI tool stack:
-      - Budget RAG Search (TXTSearchTool over backend/data, local ChromaDB at backend/db)
+      - VectorDBSearchTool (semantic search over uploaded documents with 0.8 similarity threshold)
       - SerperDevTool (live Google search, requires SERPER_API_KEY)
       - ScrapeWebsiteTool (on-demand website scraping)
       - DataFolderSyncTool (custom local file sync/audit)
-      - DocumentSearchTool (search uploaded company documents)
 
     All agents use OpenAI GPT-4o-mini as the LLM (requires OPENAI_API_KEY).
     """
     shared_tools = [
-        create_budget_rag_tool(),
+        VectorDBSearchTool(),
         create_web_search_tool(),
         create_scrape_website_tool(),
         DataFolderSyncTool(),
-        DocumentSearchTool(),
     ]
 
     # Explicit OpenAI LLM configuration for all agents
