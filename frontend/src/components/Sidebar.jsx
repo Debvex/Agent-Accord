@@ -1,5 +1,14 @@
-import React from 'react'
-import { Play, ToggleLeft, ToggleRight, Sparkles, Terminal, Shield, FileText, Activity } from 'lucide-react'
+import React from "react";
+import {
+  Play,
+  ToggleLeft,
+  ToggleRight,
+  Sparkles,
+  Terminal,
+  Shield,
+  FileText,
+  Activity,
+} from "lucide-react";
 
 export default function Sidebar({
   prompt,
@@ -8,13 +17,13 @@ export default function Sidebar({
   onRun,
   chatLog,
   useMockMode,
-  setUseMockMode
+  setUseMockMode,
 }) {
   const PRESET_MANDATES = [
     "We must cut 20% of R&D spend immediately due to market volatility.",
     "Reallocate 15% from long-term capital cycles to accelerate short-term AI products.",
-    "Reduce total R&D budget by 25% while maintaining 100% core engineering headcount."
-  ]
+    "Reduce total R&D budget by 25% while maintaining 100% core engineering headcount.",
+  ];
 
   return (
     <div className="w-96 h-full bg-slate-950/90 border-r border-slate-800/80 flex flex-col justify-between backdrop-blur-xl z-10 shadow-2xl">
@@ -34,7 +43,7 @@ export default function Sidebar({
               </span>
             </div>
           </div>
-          
+
           {/* Mock Mode Toggle */}
           <button
             onClick={() => setUseMockMode(!useMockMode)}
@@ -46,7 +55,13 @@ export default function Sidebar({
             ) : (
               <ToggleLeft className="w-5 h-5 text-slate-600" />
             )}
-            <span className={useMockMode ? 'text-cyan-400 font-semibold text-[11px]' : 'text-[11px]'}>
+            <span
+              className={
+                useMockMode
+                  ? "text-cyan-400 font-semibold text-[11px]"
+                  : "text-[11px]"
+              }
+            >
               Mock
             </span>
           </button>
@@ -69,7 +84,11 @@ export default function Sidebar({
         {chatLog.length === 0 ? (
           <div className="text-center py-16 px-4 text-slate-500 text-xs space-y-3">
             <Shield className="w-8 h-8 text-slate-700 mx-auto" />
-            <p>Select a scenario mandate below and click <strong className="text-cyan-400">RUN POLICY WEAVER</strong> to initiate multi-agent governance negotiation.</p>
+            <p>
+              Select a scenario mandate below and click{" "}
+              <strong className="text-cyan-400">RUN POLICY WEAVER</strong> to
+              initiate multi-agent governance negotiation.
+            </p>
           </div>
         ) : (
           chatLog.map((turn, idx) => (
@@ -79,14 +98,25 @@ export default function Sidebar({
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: turn.color }} />
-                  <span className="font-bold text-slate-200" style={{ color: turn.color }}>
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shadow-sm"
+                    style={{ backgroundColor: turn.color }}
+                  />
+                  <span
+                    className="font-bold text-slate-200"
+                    style={{ color: turn.color }}
+                  >
                     {turn.speaker}
                   </span>
                 </div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase">Turn #{idx + 1}</span>
+                <span className="text-[9px] font-mono text-slate-500 uppercase">
+                  Turn #{idx + 1}
+                </span>
               </div>
-              <p className="text-slate-300 leading-relaxed pl-3.5 border-l-2 text-xs" style={{ borderColor: turn.color + "60" }}>
+              <p
+                className="text-slate-300 leading-relaxed pl-3.5 border-l-2 text-xs"
+                style={{ borderColor: turn.color + "60" }}
+              >
                 {turn.text}
               </p>
             </div>
@@ -99,7 +129,8 @@ export default function Sidebar({
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="text-[10px] font-mono uppercase text-slate-400 flex items-center gap-1">
-              <FileText className="w-3 h-3 text-cyan-400" /> Policy Mandate Scenario
+              <FileText className="w-3 h-3 text-cyan-400" /> Policy Mandate
+              Scenario
             </label>
           </div>
 
@@ -115,7 +146,9 @@ export default function Sidebar({
 
         {/* Quick Presets */}
         <div className="space-y-1">
-          <span className="text-[9px] font-mono text-slate-500 uppercase">Quick Scenarios:</span>
+          <span className="text-[9px] font-mono text-slate-500 uppercase">
+            Quick Scenarios:
+          </span>
           <div className="flex flex-wrap gap-1">
             {PRESET_MANDATES.map((preset, i) => (
               <button
@@ -134,11 +167,8 @@ export default function Sidebar({
         <button
           onClick={onRun}
           disabled={isRunning}
-<<<<<<< HEAD
           className="w-full py-2.5 px-4 bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs rounded-lg shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-=======
           className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:via-blue-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 glow-cyan"
->>>>>>> origin/main
         >
           {isRunning ? (
             <>
@@ -154,5 +184,5 @@ export default function Sidebar({
         </button>
       </div>
     </div>
-  )
+  );
 }
