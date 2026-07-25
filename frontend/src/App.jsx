@@ -143,7 +143,7 @@ export default function App() {
 
       {/* 3D Visual Stage Canvas */}
       <div className="flex-1 h-full relative">
-        <Scene activeSpeaker={activeSpeaker} />
+        <Scene activeSpeaker={activeSpeaker} hideLabels={Boolean(accord)} />
 
         {/* Mock Mode Overlay Indicator Badge */}
         {useMockMode && (

@@ -1,5 +1,15 @@
 import React from 'react'
-import { Play, ToggleLeft, ToggleRight, Sparkles, Terminal, Shield, FileText, Activity } from 'lucide-react'
+import {
+  Play,
+  ToggleLeft,
+  ToggleRight,
+  Sparkles,
+  Terminal,
+  Shield,
+  FileText,
+  Activity,
+  Send,
+} from 'lucide-react'
 
 export default function Sidebar({
   prompt,
@@ -8,147 +18,127 @@ export default function Sidebar({
   onRun,
   chatLog,
   useMockMode,
-  setUseMockMode
+  setUseMockMode,
 }) {
   const PRESET_MANDATES = [
-    "We must cut 20% of R&D spend immediately due to market volatility.",
-    "Reallocate 15% from long-term capital cycles to accelerate short-term AI products.",
-    "Reduce total R&D budget by 25% while maintaining 100% core engineering headcount."
+    'We must cut 20% of R&D spend immediately due to market volatility.',
+    'Reallocate 15% from long-term capital cycles to accelerate short-term AI products.',
+    'Reduce total R&D budget by 25% while maintaining 100% core engineering headcount.',
   ]
 
   return (
-    <div className="w-96 h-full bg-slate-950/90 border-r border-slate-800/80 flex flex-col justify-between backdrop-blur-xl z-10 shadow-2xl">
-      {/* Control Panel Header */}
-      <div className="p-4 border-b border-slate-800/80 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-cyan-500/10 border border-cyan-500/30 rounded-xl shadow-lg shadow-cyan-500/10">
-              <Sparkles className="w-5 h-5 text-cyan-400" />
+    <aside className="relative h-full w-[320px] shrink-0 overflow-hidden border-r border-slate-700/70 bg-[#666a76] text-slate-100 shadow-[8px_0_40px_rgba(2,6,23,0.35)]">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-size-[48px_48px] opacity-25" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-linear-to-b from-white/8 to-transparent" />
+
+      <div className="relative z-10 flex h-full flex-col">
+        <header className="flex items-start justify-between border-b border-slate-500/40 px-4 py-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200/90">
+              <Sparkles className="h-3.5 w-3.5 text-rose-300" />
+              Dialogue Stream
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-white tracking-wide flex items-center gap-2">
-                AgentAccord
-              </h1>
-              <span className="text-[10px] font-mono text-cyan-400 font-semibold tracking-widest uppercase">
-                v2.1 Sentient Policy Weaver
-              </span>
-            </div>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300/70">Agent Accord</p>
           </div>
-          
-          {/* Mock Mode Toggle */}
+
           <button
+            type="button"
             onClick={() => setUseMockMode(!useMockMode)}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 transition-colors bg-slate-900/60 p-1.5 rounded-lg border border-slate-800"
+            className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-slate-200/80 transition-colors hover:bg-white/10"
             title="Toggle Local Simulation Engine (Ctrl+M)"
           >
             {useMockMode ? (
-              <ToggleRight className="w-5 h-5 text-cyan-400" />
+              <ToggleRight className="h-4 w-4 text-cyan-300" />
             ) : (
-              <ToggleLeft className="w-5 h-5 text-slate-600" />
+              <ToggleLeft className="h-4 w-4 text-slate-300" />
             )}
-            <span className={useMockMode ? 'text-cyan-400 font-semibold text-[11px]' : 'text-[11px]'}>
-              Mock
-            </span>
           </button>
-        </div>
-      </div>
+        </header>
 
-      {/* Real-time Streaming Agent Dialogue Terminal */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 font-sans text-xs">
-        <div className="flex items-center justify-between text-slate-500 font-mono text-[10px] uppercase tracking-wider mb-2 pb-1 border-b border-slate-800/60">
-          <div className="flex items-center gap-1.5">
-            <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Agent Dialogue Stream</span>
-          </div>
-          <div className="flex items-center gap-1 text-slate-400">
-            <Activity className="w-3 h-3 text-emerald-400 animate-pulse" />
-            <span>{isRunning ? "Negotiating" : "Idle"}</span>
-          </div>
-        </div>
-
-        {chatLog.length === 0 ? (
-          <div className="text-center py-16 px-4 text-slate-500 text-xs space-y-3">
-            <Shield className="w-8 h-8 text-slate-700 mx-auto" />
-            <p>Select a scenario mandate below and click <strong className="text-cyan-400">RUN POLICY WEAVER</strong> to initiate multi-agent governance negotiation.</p>
-          </div>
-        ) : (
-          chatLog.map((turn, idx) => (
-            <div
-              key={idx}
-              className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/90 shadow-lg space-y-1.5 animate-fadeIn"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: turn.color }} />
-                  <span className="font-bold text-slate-200" style={{ color: turn.color }}>
-                    {turn.speaker}
-                  </span>
-                </div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase">Turn #{idx + 1}</span>
-              </div>
-              <p className="text-slate-300 leading-relaxed pl-3.5 border-l-2 text-xs" style={{ borderColor: turn.color + "60" }}>
-                {turn.text}
-              </p>
+        <section className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200/70">
+              <span className="flex items-center gap-1.5">
+                <Terminal className="h-3.5 w-3.5 text-slate-100/70" />
+                Dialogue Stream
+              </span>
+              <span className="flex items-center gap-1 text-slate-300/70">
+                <Activity className="h-3 w-3 animate-pulse text-rose-300" />
+                {isRunning ? 'Live' : 'Idle'}
+              </span>
             </div>
-          ))
-        )}
-      </div>
 
-      {/* Preset Suggestions & Input Box */}
-      <div className="p-4 border-t border-slate-800/80 bg-slate-950/80 space-y-3">
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="text-[10px] font-mono uppercase text-slate-400 flex items-center gap-1">
-              <FileText className="w-3 h-3 text-cyan-400" /> Policy Mandate Scenario
-            </label>
+            <div className="space-y-3">
+              {chatLog.length === 0 ? (
+                <div className="rounded-2xl border border-white/10 bg-white/6 px-3 py-5 text-[11px] leading-relaxed text-slate-200/75">
+                  <Shield className="mb-2 h-4 w-4 text-slate-100/70" />
+                  Start a scenario to populate the dialogue stream.
+                </div>
+              ) : (
+                chatLog.map((turn, idx) => (
+                  <article key={idx} className="space-y-1.5 rounded-2xl border border-white/10 bg-white/6 px-3 py-3">
+                    <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em]">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: turn.color }} />
+                      <span style={{ color: turn.color }}>{turn.speaker}</span>
+                    </div>
+                    <p className="pl-3 text-[11px] leading-relaxed text-slate-200/80">
+                      {turn.text}
+                    </p>
+                  </article>
+                ))
+              )}
+            </div>
+          </div>
+        </section>
+
+        <footer className="border-t border-slate-500/40 bg-[#3f4653] px-4 py-4 text-slate-100">
+          <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200/80">
+            <FileText className="h-3.5 w-3.5 text-slate-100/80" />
+            Intervene in Policy
           </div>
 
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            disabled={isRunning}
-            rows={3}
-            className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 disabled:opacity-50 transition-all shadow-inner"
-            placeholder="e.g., We must cut 20% of R&D spend immediately..."
-          />
-        </div>
-
-        {/* Quick Presets */}
-        <div className="space-y-1">
-          <span className="text-[9px] font-mono text-slate-500 uppercase">Quick Scenarios:</span>
-          <div className="flex flex-wrap gap-1">
-            {PRESET_MANDATES.map((preset, i) => (
-              <button
-                key={i}
+          <div className="space-y-3">
+            <div className="flex items-end gap-2 rounded-xl border border-white/10 bg-[#59606d] px-3 py-3 shadow-inner">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
                 disabled={isRunning}
-                onClick={() => setPrompt(preset)}
-                className="text-[10px] px-2 py-1 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-md border border-slate-800 transition-colors text-left truncate max-w-full"
+                rows={2}
+                className="min-h-10.5 flex-1 resize-none bg-transparent text-sm text-slate-100 placeholder:text-slate-300/60 outline-none"
+                placeholder="Type direct command..."
+              />
+              <button
+                type="button"
+                onClick={onRun}
+                disabled={isRunning}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-[#6a717d] text-slate-100 transition-colors hover:bg-[#737a86] disabled:opacity-50"
+                aria-label="Run policy weaver"
+                title="Run policy weaver"
               >
-                {preset.substring(0, 35)}...
+                {isRunning ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-100 border-t-transparent" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </button>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Execution Trigger Button */}
-        <button
-          onClick={onRun}
-          disabled={isRunning}
-          className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:via-blue-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 glow-cyan"
-        >
-          {isRunning ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Synthesizing Policy Accord...</span>
-            </>
-          ) : (
-            <>
-              <Play className="w-4 h-4 fill-current" />
-              <span>RUN POLICY WEAVER</span>
-            </>
-          )}
-        </button>
+            <div className="flex flex-wrap gap-1">
+              {PRESET_MANDATES.map((preset, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  disabled={isRunning}
+                  onClick={() => setPrompt(preset)}
+                  className="max-w-full truncate rounded-full border border-white/10 bg-white/6 px-2.5 py-1 text-left text-[10px] text-slate-200/70 transition-colors hover:bg-white/12 hover:text-white disabled:opacity-50"
+                >
+                  {preset.substring(0, 20)}...
+                </button>
+              ))}
+            </div>
+          </div>
+        </footer>
       </div>
-    </div>
+    </aside>
   )
 }

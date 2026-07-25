@@ -1,14 +1,26 @@
-import React, { useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 
-export default function AgentOrb({ position, role, color, activeSpeaker }) {
+export default function AgentOrb({ position, role, color, activeSpeaker, hideLabel = false }) {
+  const groupRef = useRef()
   const meshRef = useRef()
   const ringRef = useRef()
   const isActive = activeSpeaker === role
+  const basePosition = useMemo(() => new THREE.Vector3(position[0], position[1], position[2]), [position])
 
   useFrame((state, delta) => {
+    if (groupRef.current) {
+      const targetPosition = new THREE.Vector3(
+        basePosition.x,
+        basePosition.y + (isActive ? 0.15 : 0),
+        basePosition.z
+      )
+
+      groupRef.current.position.lerp(targetPosition, delta * 5)
+    }
+
     if (!meshRef.current) return
 
     // Base orb rotation
@@ -36,7 +48,7 @@ export default function AgentOrb({ position, role, color, activeSpeaker }) {
   })
 
   return (
-    <group position={position}>
+    <group ref={groupRef} position={position}>
       {/* Primary Agent Sphere */}
       <mesh ref={meshRef}>
         <sphereGeometry args={[0.65, 32, 32]} />
@@ -59,29 +71,30 @@ export default function AgentOrb({ position, role, color, activeSpeaker }) {
         />
       </mesh>
 
-      {/* Floating 3D HTML Speech & Role Tag */}
-      <Html position={[0, 1.25, 0]} center distanceFactor={10}>
-        <div
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 shadow-xl border backdrop-blur-md ${
-            isActive
-              ? 'bg-slate-900/95 text-white border-cyan-400 scale-110 shadow-cyan-500/50 ring-2 ring-cyan-400/40'
-              : 'bg-slate-950/80 text-slate-400 border-slate-800'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${isActive ? 'animate-ping' : ''}`}
-              style={{ backgroundColor: color }}
-            />
-            <span className="font-semibold text-slate-100">{role}</span>
-            {isActive && (
-              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                SPEAKING
-              </span>
-            )}
+      {!hideLabel && (
+        <Html position={[0, 1.25, 0]} center distanceFactor={10}>
+          <div
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 shadow-xl border backdrop-blur-md ${
+              isActive
+                ? 'bg-slate-900/95 text-white border-cyan-400 scale-110 shadow-cyan-500/50 ring-2 ring-cyan-400/40'
+                : 'bg-slate-950/80 text-slate-400 border-slate-800'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${isActive ? 'animate-ping' : ''}`}
+                style={{ backgroundColor: color }}
+              />
+              <span className="font-semibold text-slate-100">{role}</span>
+              {isActive && (
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                  SPEAKING
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      </Html>
+        </Html>
+      )}
     </group>
   )
 }
