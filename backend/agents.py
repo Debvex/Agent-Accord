@@ -1,48 +1,53 @@
 import os
 from crewai import Agent
-from crewai_tools import FileReadTool
+from tools import VectorlessRAGTool, DataFolderSyncTool, WebSearchTool
 
-# Initialize RAG document search tool targeting budget constraint data
-data_file_path = os.path.join(os.path.dirname(__file__), 'data', 'r_and_d_budget_2026.txt')
-file_search_tool = FileReadTool(file_path=data_file_path)
+# Instantiate shared tools for every agent
+vectorless_rag_tool = VectorlessRAGTool()
+data_sync_tool = DataFolderSyncTool()
+web_search_tool = WebSearchTool()
 
 def create_governance_agents():
     """
-    Creates and returns the 4 specialized AgentAccord governance agents.
+    Creates and returns the 4 specialized AgentAccord governance agents,
+    equipped with vectorless RAG, data folder sync, and web search tools.
     """
-    # 1. Finance Lead
+    # 1. Finance Lead (Red #ef4444)
     finance_lead = Agent(
         role="Finance Lead",
-        goal="Aggressively push for immediate cost reduction and strict financial discipline to protect company cash reserves.",
-        backstory="A seasoned CFO focused strictly on fiscal health, expense reduction, and mitigating downside financial exposure.",
+        goal="Aggressively push for immediate cost reduction (20% target) and strict financial discipline to protect cash reserves.",
+        backstory="A seasoned CFO focused strictly on bottom-line fiscal health, expense reduction, and downside financial risk mitigation.",
+        tools=[vectorless_rag_tool, data_sync_tool, web_search_tool],
         verbose=True,
         allow_delegation=False
     )
 
-    # 2. Market Intelligence Agent (RAG Attached)
+    # 2. Market Intelligence Agent (Blue #3b82f6)
     market_agent = Agent(
         role="Market Intelligence Agent",
-        goal="Provide data-driven evidence from budget constraints and contract cancellation penalty documents to inform negotiation.",
-        backstory="A meticulous data analyst who retrieves ground-truth financial facts and threshold rules before making proposals.",
-        tools=[file_search_tool],
+        goal="Provide evidence-based quantitative analysis from internal budget constraints, contract cancellation penalties, and external market benchmarks.",
+        backstory="A meticulous data analyst who retrieves ground-truth financial rules and syncs data assets before making proposals.",
+        tools=[vectorless_rag_tool, data_sync_tool, web_search_tool],
         verbose=True,
         allow_delegation=False
     )
 
-    # 3. R&D Project Director
+    # 3. R&D Project Director (Green #22c55e)
     rd_director = Agent(
         role="R&D Project Director",
-        goal="Defend flagship AI and Quantum technology initiatives while conceding non-core Biotech projects if necessary.",
-        backstory="A visionary technology leader dedicated to preserving core tech innovations and market differentiation.",
+        goal="Defend flagship AI and Quantum technology initiatives while conceding non-core Biotech projects if necessary to satisfy savings goals.",
+        backstory="A visionary technology leader dedicated to preserving core tech breakthroughs, technical moat, and strategic differentiation.",
+        tools=[vectorless_rag_tool, data_sync_tool, web_search_tool],
         verbose=True,
         allow_delegation=False
     )
 
-    # 4. Ethics & Governance Officer
+    # 4. Ethics & Governance Officer (Purple #a855f7)
     ethics_officer = Agent(
         role="Ethics & Governance Officer",
-        goal="Ensure budget cuts do not trigger unfair involuntary layoffs or violate labor compliance and employee well-being.",
-        backstory="A principled governance official committed to ethical corporate practices, employee retention, and fair policy execution.",
+        goal="Ensure budget cuts maintain workforce stability, avoid involuntary layoffs, and adhere to labor regulation and fair policy standards.",
+        backstory="A principled legal and human governance officer committed to ethical corporate practices, employee retention, and fair policy execution.",
+        tools=[vectorless_rag_tool, data_sync_tool, web_search_tool],
         verbose=True,
         allow_delegation=False
     )
