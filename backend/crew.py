@@ -66,20 +66,35 @@ async def run_negotiation_crew_stream(user_prompt: str, session_id: str = "defau
         # Update session state
         active_negotiations[session_id]["current_speaker"] = role_name
         
-        # Check for interrupts before each agent speaks
+        # Check for interrupts before each agent speaks (can receive multiple)
         if session_id in interrupt_queue and interrupt_queue[session_id]:
-            interrupt = interrupt_queue[session_id].pop(0)
-            yield {
-                "type": "interrupt",
-                "message": interrupt["message"],
-                "timestamp": interrupt["timestamp"],
-                "acknowledged_by": role_name
-            }
-            # Add interrupt context to the task description
+            interrupts = interrupt_queue[session_id].copy()
+            interrupt_queue[session_id].clear()
+            
+            for interrupt in interrupts:
+                yield {
+                    "type": "interrupt",
+                    "message": interrupt["message"],
+                    "timestamp": interrupt["timestamp"],
+                    "acknowledged_by": role_name,
+                    "before_turn": idx + 1
+                }
+            
+            # Add all interrupt context to the task description
             original_desc = task_obj.description
-            task_obj.description = f"{original_desc}\n\nUser interruption: {interrupt['message']}"
+            interrupt_context = "\n\n".join([f"User interruption: {i['message']}" for i in interrupts])
+            task_obj.description = f"{original_desc}\n\n{interrupt_context}"
         
         print(f"[CrewAI] Executing {role_name}...")
+        
+        # Yield a thinking event to show progress
+        yield {
+            "type": "thinking",
+            "speaker": role_name,
+            "color": AGENT_COLORS.get(role_name, "#38bdf8"),
+            "message": f"{role_name} is analyzing and preparing response...",
+            "turn_number": idx + 1
+        }
         
         # Retry logic for transient OpenAI API failures
         max_retries = 3
