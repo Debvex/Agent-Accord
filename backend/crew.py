@@ -49,7 +49,7 @@ async def run_negotiation_crew_stream(user_prompt: str):
                 single_crew = Crew(
                     agents=[agent_obj],
                     tasks=[task_obj],
-                    verbose=False
+                    verbose=True
                 )
                 result = await asyncio.to_thread(single_crew.kickoff)
                 result_text = str(result.raw if hasattr(result, 'raw') else result)
