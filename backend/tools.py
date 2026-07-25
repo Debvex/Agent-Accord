@@ -127,24 +127,37 @@ class DocumentSearchTool(BaseTool):
                 return "No searchable text documents found in uploads."
             
             # Use the first file for now (can be enhanced to search all)
-            search_tool = TXTSearchTool(
-                txt=uploaded_files[0],
-                config={
-                    "embedding_model": {
-                        "provider": "openai",
-                        "config": {"model_name": "text-embedding-3-small"},
-                    },
-                    "vectordb": {
-                        "provider": "chromadb",
-                        "config": {
-                            "persist_directory": VECTOR_DB_DIR,
+            # Add retry logic for transient OpenAI API failures
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    search_tool = TXTSearchTool(
+                        txt=uploaded_files[0],
+                        config={
+                            "embedding_model": {
+                                "provider": "openai",
+                                "config": {"model_name": "text-embedding-3-small"},
+                            },
+                            "vectordb": {
+                                "provider": "chromadb",
+                                "config": {
+                                    "persist_directory": VECTOR_DB_DIR,
+                                },
+                            },
                         },
-                    },
-                },
-            )
-            
-            result = search_tool.run(query=query)
-            return result if result else f"No relevant information found for query: {query}"
+                    )
+                    
+                    result = search_tool.run(query=query)
+                    return result if result else f"No relevant information found for query: {query}"
+                    
+                except Exception as e:
+                    if attempt < max_retries - 1:
+                        wait_time = 2 ** attempt
+                        print(f"[DocumentSearchTool] OpenAI API error (attempt {attempt + 1}/{max_retries}): {e}")
+                        print(f"[DocumentSearchTool] Retrying in {wait_time}s...")
+                        time.sleep(wait_time)
+                    else:
+                        return f"Error searching documents after {max_retries} attempts: {str(e)}"
             
         except Exception as e:
             return f"Error searching documents: {str(e)}"
