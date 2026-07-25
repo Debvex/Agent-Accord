@@ -1,8 +1,96 @@
 import React from 'react'
-import { Award, ShieldCheck, FileCheck, CheckCircle2, RotateCcw, X } from 'lucide-react'
+import { Award, ShieldCheck, FileCheck, CheckCircle2, Download, RotateCcw, X } from 'lucide-react'
+import { jsPDF } from 'jspdf'
 
-export default function DecisionLedger({ accord, onReset }) {
+export default function DecisionLedger({ accord, prompt, chatLog, onReset }) {
   if (!accord) return null
+
+  const handleDownload = () => {
+    const turns = chatLog
+      .map(
+        (turn, index) => `${index + 1}. ${turn.speaker}\n${turn.text}`
+      )
+      .join('\n\n')
+    const pdf = new jsPDF({ unit: 'pt', format: 'a4' })
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+    const marginX = 44
+    const topMargin = 52
+    const contentWidth = pageWidth - marginX * 2
+    const safeTitle = accord.title.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase()
+    const lineColor = [64, 81, 102]
+
+    const addHeader = () => {
+      pdf.setFillColor(15, 23, 42)
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F')
+
+      pdf.setDrawColor(...lineColor)
+      pdf.setLineWidth(1)
+      pdf.line(marginX, 112, pageWidth - marginX, 112)
+
+      pdf.setTextColor(248, 250, 252)
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(22)
+      pdf.text('Agent Accord Summary', marginX, 32)
+
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(9)
+      pdf.setTextColor(191, 219, 254)
+      pdf.text(`Generated ${new Date().toLocaleString()}`, marginX, 46)
+
+      pdf.setTextColor(226, 232, 240)
+      pdf.setFontSize(12)
+      pdf.text(accord.title, marginX, 72, { maxWidth: contentWidth })
+
+      pdf.setFontSize(9)
+      pdf.setTextColor(148, 163, 184)
+      pdf.text('Final stress-test document', marginX, 90)
+    }
+
+    const writeSection = (title, body, y) => {
+      pdf.setTextColor(148, 163, 184)
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(10)
+      pdf.text(title.toUpperCase(), marginX, y)
+
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(10)
+      pdf.setTextColor(226, 232, 240)
+      const lines = pdf.splitTextToSize(body, contentWidth)
+      pdf.text(lines, marginX, y + 14)
+
+      return y + 14 + lines.length * 12 + 10
+    }
+
+    let cursorY = topMargin + 72
+    addHeader()
+
+    const metricsLines = [
+      `Resilience Score: ${accord.resilience_score} / 10.0`,
+      `Fairness Score: ${accord.fairness_score} / 10.0`,
+    ].join('\n')
+
+    const blocks = [
+      ['Stress Test Summary', accord.summary],
+      ['Metrics', metricsLines],
+      ['Scenario Prompt', prompt || 'N/A'],
+      ['Dialogue Turns', turns || 'No dialogue captured.'],
+      ['Closing Note', 'This document summarizes the final stress-test accord and can be archived or shared for review.'],
+    ]
+
+    blocks.forEach(([title, body]) => {
+      const requiredHeight = pdf.splitTextToSize(body, contentWidth).length * 12 + 34
+      if (cursorY + requiredHeight > pageHeight - 50) {
+        pdf.addPage()
+        addHeader()
+        cursorY = topMargin + 72
+      }
+
+      cursorY = writeSection(title, body, cursorY)
+    })
+
+    pdf.save(`${safeTitle || 'agent-accord-summary'}.pdf`)
+  }
 
   return (
     <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 z-50 animate-fadeIn">
@@ -71,8 +159,16 @@ export default function DecisionLedger({ accord, onReset }) {
         {/* Reset Action */}
         <div className="pt-2">
           <button
+            type="button"
+            onClick={handleDownload}
+            className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs font-semibold text-slate-200 transition-colors hover:border-cyan-500/40 hover:bg-slate-800"
+          >
+            <Download className="h-4 w-4" /> Download Summary
+          </button>
+
+          <button
             onClick={onReset}
-            className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 py-2.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700"
           >
             <RotateCcw className="w-4 h-4" /> Start New Governance Scenario
           </button>

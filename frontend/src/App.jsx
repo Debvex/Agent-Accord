@@ -155,7 +155,12 @@ export default function App() {
       </div>
 
       {/* Golden Document Decision Ledger Modal */}
-      <DecisionLedger accord={accord} onReset={handleReset} />
+      <DecisionLedger
+        accord={accord}
+        prompt={prompt}
+        chatLog={chatLog}
+        onReset={handleReset}
+      />
     </div>
   )
 }
