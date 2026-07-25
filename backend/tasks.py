@@ -2,7 +2,7 @@ from crewai import Task
 
 def create_negotiation_tasks(agents: dict, user_prompt: str) -> list[Task]:
     """
-    Builds sequential negotiation tasks for the CrewAI crew based on the user's prompt.
+    Builds sequential negotiation tasks for the CrewAI crew based on the user's policy mandate prompt.
     """
     finance_lead = agents["finance_lead"]
     market_agent = agents["market_agent"]
@@ -10,26 +10,40 @@ def create_negotiation_tasks(agents: dict, user_prompt: str) -> list[Task]:
     ethics_officer = agents["ethics_officer"]
 
     task1 = Task(
-        description=f"Analyze the budget mandate '{user_prompt}' and demand an aggressive cost reduction proposal highlighting initial savings targets.",
-        expected_output="An initial stance from Finance demanding cost cuts across R&D verticals.",
+        description=(
+            f"Analyze the policy mandate '{user_prompt}'. Demands an aggressive 20% cost reduction "
+            "across overall R&D spend. Outline initial cost targets and urge all department leads to cut budget."
+        ),
+        expected_output="An analytical demand from Finance calling for immediate 20% R&D budget cuts.",
         agent=finance_lead
     )
 
     task2 = Task(
-        description="MANDATORY: Execute your search tool to query minimum budget constraints and contract penalties in the document before speaking. State explicit threshold rules and cancellation penalties.",
-        expected_output="A data-backed report detailing minimum threshold constraints for AI, Quantum, and Biotech projects.",
+        description=(
+            "Execute Vectorless RAG Search Tool to search budget constraints and contract cancellation penalties in 'r_and_d_budget_2026.txt'. "
+            "Also execute Data Folder Sync Tool to copy budget files to 'synced_data'. "
+            "Report exact minimum allocation thresholds for AI, Quantum, and Biotech, and state termination penalty costs."
+        ),
+        expected_output="A data-backed report stating budget threshold constraints, contract penalties, and confirmation of file sync.",
         agent=market_agent
     )
 
     task3 = Task(
-        description="Respond to Finance and Market Data by defending core AI budget (minimum 50%) and Quantum (30%), while agreeing to concession on Biotech (15%) to satisfy savings.",
-        expected_output="A tech project defense proposal prioritizing AI/Quantum and accepting Biotech scale-down.",
+        description=(
+            "Evaluate Finance's demand and Market Data's constraints. Defend core AI budget at minimum 55% "
+            "and Quantum at 30%, while proposing a concession of Biotech to 15% to absorb the required budget cut."
+        ),
+        expected_output="A technological defense proposal prioritizing core AI/Quantum breakthroughs while conceding on Biotech.",
         agent=rd_director
     )
 
     task4 = Task(
-        description="Evaluate the compromise proposal to ensure zero involuntary layoffs, verifying labor compliance and framing the final accord balance.",
-        expected_output="A final governance endorsement ensuring zero workforce layoffs and ethical balance.",
+        description=(
+            "Evaluate the proposed reallocation (AI 55%, Quantum 30%, Biotech 15%). Verify that project scale-down "
+            "absorbs the 20% cost reduction through non-labor concessions, ensuring zero involuntary workforce layoffs. "
+            "Conclude with a final accord summary."
+        ),
+        expected_output="A final governance endorsement validating labor compliance, zero involuntary layoffs, and final accord balance.",
         agent=ethics_officer
     )
 
