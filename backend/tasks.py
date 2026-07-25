@@ -3,6 +3,7 @@ from crewai import Task
 def create_negotiation_tasks(agents: dict, user_prompt: str) -> list[Task]:
     """
     Builds sequential negotiation tasks for the CrewAI crew based on the user's policy mandate prompt.
+    Each task runs individually and asynchronously per agent (see crew.py).
     """
     finance_lead = agents["finance_lead"]
     market_agent = agents["market_agent"]
@@ -20,9 +21,10 @@ def create_negotiation_tasks(agents: dict, user_prompt: str) -> list[Task]:
 
     task2 = Task(
         description=(
-            "Execute Vectorless RAG Search Tool to search budget constraints and contract cancellation penalties in 'r_and_d_budget_2026.txt'. "
-            "Also execute Data Folder Sync Tool to copy budget files to 'synced_data'. "
-            "Report exact minimum allocation thresholds for AI, Quantum, and Biotech, and state termination penalty costs."
+            "Use the Budget RAG Search tool to query 'r_and_d_budget_2026.txt' for minimum budget constraints "
+            "and contract cancellation penalties. Also execute the Data Folder Sync Tool to copy budget files "
+            "to 'synced_data'. Report exact minimum allocation thresholds for AI, Quantum, and Biotech, and "
+            "state termination penalty costs."
         ),
         expected_output="A data-backed report stating budget threshold constraints, contract penalties, and confirmation of file sync.",
         agent=market_agent

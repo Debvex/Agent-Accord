@@ -1,9 +1,13 @@
-**gentAccord: The Sentient Policy Weaver** is a multi-agent governance platform designed for adaptive organizational decision-making. In the primary scenario—*Adaptive R&D Budget Allocation in a Volatile Market*—four specialized AI agents engage in structured negotiation over resource cuts while adhering to real financial data retrieved via RAG and evaluated against a NumPy-based market shock model.
+# AgentAccord: The Sentient Policy Weaver
+
+## 1. Project Overview & System Architecture
+
+**AgentAccord: The Sentient Policy Weaver** is a multi-agent governance platform designed for adaptive organizational decision-making. In the primary scenario—*Adaptive R&D Budget Allocation in a Volatile Market*—four specialized AI agents engage in structured negotiation over resource cuts while adhering to real financial data retrieved via RAG and evaluated against a NumPy-based market shock model.
 
 ```
                   ┌─────────────────────────────────────────┐
                   │           FastAPI Backend Server        │
-                  │              (main.py / SSE)            │
+                  │         (backend/main.py / SSE)         │
                   └────────────────────┬────────────────────┘
                                        │
                 ┌──────────────────────┴──────────────────────┐
@@ -14,8 +18,9 @@
       └─────────┬──────────┘                       └──────────┬──────────┘
                 │                                             │
       ┌─────────▼──────────┐                                  │
-      │ Native RAG Engine  │                                  │
-      │ (PDFSearchTool)    │                                  │
+      │  RAG Tool Stack    │                                  │
+      │ (TXTSearchTool +   │                                  │
+      │  local ChromaDB)   │                                  │
       └────────────────────┘                                  │
                 │                                             │
                 └──────────────────────┬──────────────────────┘
@@ -34,9 +39,18 @@
       └────────────────────┘                       └─────────────────────┘
 ```
 
+**Runtime note (Python)**: CrewAI and ChromaDB currently require **Python ≥3.10 and <3.14**. Running on Python 3.14 breaks the live agent path (chromadb relies on Pydantic V1 internals); the backend then serves its simulation fallback instead of live CrewAI execution.
+
 ---
 
 ## 2. Agent Personas & Configuration (`backend/agents.py`)
+
+Every agent is equipped with the full shared tool stack (`backend/tools.py`):
+
+* **Budget RAG Search** — `TXTSearchTool` over `backend/data/r_and_d_budget_2026.txt`, embedded with OpenAI `text-embedding-3-small` and persisted to a local ChromaDB vector store inside the repo at `backend/db/` (gitignored).
+* **Web Search** — `SerperDevTool` (live Google results; requires `SERPER_API_KEY` in `backend/.env`).
+* **Website Scraping** — `ScrapeWebsiteTool` (agents may scrape any URL discovered at runtime).
+* **Data Folder Sync** — custom `DataFolderSyncTool` that copies matching files from `backend/data/` into `backend/synced_data/` for auditing.
 
 ### Agent 1: Finance Lead
 
@@ -51,7 +65,7 @@
 * **Role**: Chief Data Officer & Market Analyst
 * **Goal**: Query internal budget documents for constraints, contract cancellation penalties, and minimum operating thresholds before recommending data-driven compromises.
 * **Backstory**: An expert data scientist armed with real-time financial documents and market metrics.
-* **Tools Attached**: `PDFSearchTool(pdf='data/r_and_d_budget_2026.pdf')` or file search tool pointing to `data/r_and_d_budget_2026.txt`.
+* **Tools Attached**: Full shared stack above; primary user of the Budget RAG Search (`TXTSearchTool`) against `backend/data/r_and_d_budget_2026.txt`.
 * **Mandatory Constraint**: Must run search queries (e.g., *"minimum budget constraints and contract penalties"*) before contributing dialogue.
 * **Color Representation**: Blue (`#3b82f6`)
 
@@ -75,31 +89,39 @@
 
 ## 3. Resilience Engine Specification (`backend/resilience.py`)
 
-The resilience engine stress-tests negotiated allocations against market volatility vectors using NumPy matrix transformations.
+The resilience engine stress-tests negotiated allocations against market volatility vectors using NumPy matrix transformations. The implementation includes a default-allocation fallback and sum normalization:
 
 ```python
 import numpy as np
+from typing import List
 
-def calculate_resilience_score(policy_allocations: list[float]) -> float:
+def calculate_resilience_score(policy_allocations: List[float]) -> float:
     """
-    Stress-tests policy allocations against a market shock scenario.
-  
-    :param policy_allocations: List of normalized allocations [AI, Quantum, Biotech] summing to ~1.0
-    :return: Resilience score between 0.0 and 10.0
+    Calculates market resilience score using NumPy matrix stress-testing.
+
+    :param policy_allocations: List of normalized project allocations [AI, Quantum, Biotech]
+    :return: Normalized resilience score out of 10.0
     """
-    allocations = np.array(policy_allocations, dtype=float)
-  
-    # Market shock resilience matrix (weights for resistance to sudden volatility)
-    # AI: 0.85 (High market durability), Quantum: 0.40 (High risk/reward), Biotech: 0.15 (Long capital cycle)
+    if not policy_allocations or len(policy_allocations) < 3:
+        # Default allocation ratio [AI=0.55, Quantum=0.30, Biotech=0.15]
+        policy_allocations = [0.55, 0.30, 0.15]
+
+    allocations = np.array(policy_allocations[:3], dtype=float)
+    # Normalize if total does not sum to 1.0
+    total = np.sum(allocations)
+    if total > 0:
+        allocations = allocations / total
+
+    # Market shock scenario vector: AI high resilience (0.85), Quantum medium (0.40), Biotech (0.15)
     market_shock_weights = np.array([0.85, 0.40, 0.15])
-  
-    # Weighted dot product
-    raw_score = np.dot(allocations, market_shock_weights)
-  
-    # Scale score to 0 - 10.0 range
-    resilience_score = round(float(raw_score * 10.0), 1)
+
+    raw_score = float(np.dot(allocations, market_shock_weights))
+    resilience_score = round(raw_score * 10.0, 1)
+
     return min(max(resilience_score, 0.0), 10.0)
 ```
+
+The module also ships a `__main__` smoke test printing the score for `[0.55, 0.30, 0.15]`.
 
 ---
 
@@ -108,7 +130,13 @@ def calculate_resilience_score(policy_allocations: list[float]) -> float:
 ### Endpoint: `GET /negotiate?prompt={user_text}`
 
 * **Content-Type**: `text/event-stream`
-* **Headers**: `Cache-Control: no-cache`, `Connection: keep-alive`
+* **Headers**: `Cache-Control: no-cache`, `Connection: keep-alive`, `X-Accel-Buffering: no`
+* Default prompt when omitted: *"We must cut 20% of R&D spend immediately"*
+
+### Execution modes (`backend/crew.py`)
+
+1. **Live CrewAI mode** — used when a valid `OPENAI_API_KEY` is present. Each agent runs **individually and asynchronously** via `Crew.akickoff()` in negotiation order (Finance → Market → R&D → Ethics), streaming one `turn` event per agent.
+2. **Simulation fallback** — used automatically when no valid key exists or live execution fails. The backend streams a built-in dynamic simulation with the identical event contract, so the frontend always renders.
 
 ### Stream Payload Event Types:
 
@@ -135,15 +163,16 @@ data: {"type": "accord", "title": "Living R&D Policy v2.1", "summary": "Compromi
 * `accord`: Object containing final summary and scores (or `null`).
 * `isRunning`: Boolean controlling execution state.
 * `useMockMode`: Boolean triggerable via `Ctrl + M` or toggle switch.
+* On SSE error / backend offline, the frontend automatically falls back to the local mock simulation.
 
 ### 3D Stage Component (`Scene.jsx` & `AgentOrb.jsx`)
 
 * **Framework**: `@react-three/fiber` & `@react-three/drei`.
-* **Lighting**: Ambient light + point lights creating a sleek dark cinematic ambiance.
+* **Lighting**: Ambient light + two directional lights (white key, cyan fill) + a cyan point light above the table, layered with a `<Stars />` backdrop and a rotating particle field for a sleek dark cinematic ambiance.
 * **Table**: Central circular glass table mesh with emissive rim lighting.
 * **Agent Orbs**: 4 `<AgentOrb />` meshes positioned at 90-degree intervals around the table.
-* **Animation (`useFrame`)**: When `activeSpeaker === orbRole`, scale expands by 25% (1.25x), emissive intensity spikes, and a floating label appears above the orb.
-* **Controls**: `<OrbitControls enableZoom={true} maxPolarAngle={Math.PI / 2.1} />`.
+* **Animation (`useFrame`)**: When `activeSpeaker === orbRole`, scale lerps up by 25% (1.25x), emissive intensity spikes (0.45 → 2.8), and the floating role label above the orb highlights with a `SPEAKING` badge (labels remain visible at all times).
+* **Controls**: `<OrbitControls enableZoom={true} maxPolarAngle={Math.PI / 2.1} />` with gentle auto-rotate while no agent is speaking.
 
 ---
 
@@ -152,6 +181,8 @@ data: {"type": "accord", "title": "Living R&D Policy v2.1", "summary": "Compromi
 When `useMockMode` is enabled:
 
 * Bypasses FastAPI/CrewAI backend calls completely.
-* Emits pre-scripted dialogue turns every 3 seconds using `setInterval`.
+* Emits pre-scripted dialogue turns every 2.5 seconds using `setInterval`.
 * Displays the Golden Accord card upon completion.
 * Ensures 100% reliable live demonstrations regardless of network conditions or API limits.
+
+**Two independent fail-safes exist**: the frontend *Mock Mode* (`Ctrl + M`, manual) and the backend *simulation fallback* (automatic, no valid API key). Both emit the same `turn`/`accord` event contract.

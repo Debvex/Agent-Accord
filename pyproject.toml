@@ -1,7 +1,8 @@
 [project]
 name = "agent-accord"
 version = "0.1.0"
-description = "Add your description here"
+description = "AgentAccord: multi-agent governance & policy negotiation platform (FastAPI + CrewAI backend, React + R3F frontend)"
 readme = "README.md"
-requires-python = ">=3.14"
+# CrewAI currently requires Python >=3.10,<3.14 (chromadb/Pydantic-V1 incompatible with 3.14)
+requires-python = ">=3.10,<3.14"
 dependencies = []
